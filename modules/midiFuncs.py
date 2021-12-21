@@ -5,12 +5,12 @@ import mido
 from mido import Message, MidiFile, MidiTrack, MetaMessage
 
 
-def noteOn(track, wnote, wvelocity, wtime):
-    track.append(Message('note_on', note=wnote, velocity=wvelocity, time=int(wtime)))
+def noteOn(track, chnum, wnote, wvelocity, wtime):
+    track.append(Message('note_on', channel=chnum, note=wnote, velocity=wvelocity, time=int(wtime)))
 
 
-def noteOff(track, wnote, wvelocity, wtime):
-    track.append(Message('note_off', note=wnote, velocity=wvelocity, time=int(wtime)))
+def noteOff(track, chnum, wnote, wvelocity, wtime):
+    track.append(Message('note_off', channel=chnum, note=wnote, velocity=wvelocity, time=int(wtime)))
 
 
 def sample2tick(sample, wtempo, resolution):

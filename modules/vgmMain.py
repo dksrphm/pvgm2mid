@@ -61,12 +61,11 @@ def convert(state, vgmdata, midifilebase):
         if addr > vgmheader.get('Eof offset'):
             break
 
-        objYM2151.exportMidi()
-
         if (addr > 20000):
             #break
             pass
 
+        objYM2151.exportMidi()
     return True
 
 

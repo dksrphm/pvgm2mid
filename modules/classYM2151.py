@@ -24,6 +24,7 @@ class YM2151:
         self.rch = [0] * self.chs   # right channel
 
         self.mid = MidiFile()
+        self.mid.type = 1
         # track 0: conductor track
         # track 1-: data track
         self.track = [0] * (self.chs + 1)
@@ -32,7 +33,7 @@ class YM2151:
             self.mid.tracks.append(self.track[i])
 
         self.track[0].append(MetaMessage('set_tempo', tempo=mido.bpm2tempo(state.getMidiTempo()), time = 10))
-        self.mid.save('new_song.mid')
+        #self.mid.save('new_song.mid')
 
     def update(self, state, addr, aa, dd):
         #state.setDebug(False)
@@ -56,7 +57,7 @@ class YM2151:
                     else:
                         funcs.dprint(state, "addr:{} KeyOn aa:{} dd:{} chnum:{} keyon:{}".format(hex(addr), hex(aa), hex(dd), hex(chnum), hex(keyon)))
                         tick = m.sample2tick(state.getSamples(), state.getMidiTempo(), state.getMidiResolution())
-                        m.noteOn(self.track[chnum + 1], self.midinote[chnum], 100, tick - self.lastmiditick[chnum])
+                        m.noteOn(self.track[chnum + 1], chnum, self.midinote[chnum], 100, tick - self.lastmiditick[chnum])
                         self.lastmidinote[chnum] = self.midinote[chnum]
                         self.lastmiditick[chnum] = tick
                         self.keyon[chnum] = keyon
@@ -68,7 +69,7 @@ class YM2151:
                     else:
                         funcs.dprint(state, "addr:{} KeyOff aa:{} dd:{} chnum:{} keyon:{}".format(hex(addr), hex(aa), hex(dd), hex(chnum), hex(keyon)))
                         tick = m.sample2tick(state.getSamples(), state.getMidiTempo(), state.getMidiResolution())
-                        m.noteOff(self.track[chnum + 1], self.lastmidinote[chnum], 100, tick - self.lastmiditick[chnum])
+                        m.noteOff(self.track[chnum + 1], chnum, self.lastmidinote[chnum], 100, tick - self.lastmiditick[chnum])
                         self.lastmiditick[chnum] = tick
                         self.keyon[chnum] = keyon
                 else:
