@@ -25,7 +25,7 @@ def read(vgmdata):
     vgmheader['YM2151 clock']   = _readHeadData(vgmdata, 0x30, 4)
     vgmheader['VGM data offset']= _readHeadData(vgmdata, 0x34, 4)
 
-    if (vgmheader['Version'] > 0x151):
+    if (vgmheader.get('Version') > 0x151):
         vgmheader['Sega PCM clock'] = _readHeadData(vgmdata, 0x38, 4)
         vgmheader['SPCM Interface'] = _readHeadData(vgmdata, 0x3c, 4)
     

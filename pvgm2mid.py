@@ -5,13 +5,28 @@ import sys
 import os
 import gzip
 
-from modules import funcs
+from modules import convState, funcs
 from modules import vgmMain as v
+from modules import convState
 
 
 def main(argv):
+    # status data(debug flag, etc...)
+    state = convState.convState()
+
     scrname = os.path.basename(argv[0])
-    filename = argv[1]
+    if (len(argv) == 2):
+        filename = argv[1]
+    elif (len(argv) == 3):
+        if (argv[1] == '-d'):
+            state.setDebug(True)
+            filename = argv[2]
+        else:
+            funcs.usage(scrname)
+            return(1)
+    else:
+        funcs.usage(scrname)
+        return(1)
 
     if (not os.path.isfile(filename)):
         print("File not found: {}".format(filename))
@@ -35,7 +50,7 @@ def main(argv):
         print("File format error: {}".format(filename))
         return(1)
 
-    v.convert(vgmdata, midifilebase)
+    v.convert(state, vgmdata, midifilebase)
 
     return (0)
 

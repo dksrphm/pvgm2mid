@@ -12,8 +12,9 @@
             "program": "pvgm2mid.py",
             "console": "integratedTerminal",
             "args": [
-                //"fz_boss.vgz"
-                "..\\pvgm2mid\\fz_boss.vgm"
+                //"-d",
+                "fz_boss.vgm",
+                //"fz_boss.vgz",
             ],
         }
     ]

@@ -4,6 +4,7 @@
 
 class convState:
     def __init__(self):
+        self.DEBUG = False
         self.midiTempo = 120
         self.midiResolution = 480
         self.samples = 0
@@ -28,6 +29,13 @@ class convState:
 
     def addSamples(self, samples):
         self.samples += samples
+
+    def getDebug(self):
+        return self.DEBUG
+
+    def setDebug(self, debug):
+        self.DEBUG = debug
+
 
 def main():
     pass

@@ -2,18 +2,15 @@
 # -*- coding: utf-8 -*-
 
 from . import vgmHeader as h
-from . import convState
-from .chips import classYM2151
+#from . import convState
+from . import classYM2151
 
 def main():
     pass
 
 
-def convert(vgmdata, midifilebase):
+def convert(state, vgmdata, midifilebase):
     objYM2151 = None
-
-    # state data
-    state = convState.convState()
 
     # read VGM header
     vgmheader = {}
@@ -50,12 +47,12 @@ def convert(vgmdata, midifilebase):
             state.addSamples(vgmcmd - 0x70 + 1)
         elif (vgmcmd == 0x54):
             if (objYM2151 is None):
-                objYM2151 = classYM2151.YM2151()
+                objYM2151 = classYM2151.YM2151(state)
             # YM2151, write value dd to register aa
             aa = vgmdata[addr + 1]
             dd = vgmdata[addr + 2]
             addr += 3
-            objYM2151.update(addr, aa, dd)
+            objYM2151.update(state, addr, aa, dd)
             #print("vgmcmd:{} aa:{} dd:{}".format(hex(vgmcmd), hex(aa), hex(dd)))
         else:
             print("Not implemented: addr:{} vgmcmd:{}".format(hex(addr), hex(vgmcmd)))
@@ -64,8 +61,11 @@ def convert(vgmdata, midifilebase):
         if addr > vgmheader.get('Eof offset'):
             break
 
-        #if addr > 5000:
-        #    break
+        objYM2151.exportMidi()
+
+        if (addr > 20000):
+            #break
+            pass
 
     return True
 
