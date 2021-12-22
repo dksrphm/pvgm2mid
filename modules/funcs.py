@@ -13,6 +13,20 @@ def getVgmVer(vgmdata):
     return vgmVer
 
 
+def ymtl2exp(conn, tl1, tl2, tl3, tl4):
+    if (0 <= conn <= 3):
+        exp = 127 - tl4
+    elif ( conn == 4):
+        exp = 127 - ((tl2 + tl3) / 2)
+    elif (5 <= conn <= 6):
+        exp = 127 - ((tl2 + tl3 + tl4) / 3)
+    elif (conn == 7):
+        exp = 127 - ((tl1 + tl2 + tl3 + tl4) / 4)
+    else:
+        exp = 100
+    return(exp)
+
+
 def usage(scrname):
     # Usage
     print("Usage:{} [-d] filename".format(scrname))

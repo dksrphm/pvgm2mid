@@ -22,6 +22,7 @@ class YM2151:
         self.lastmiditick = [0] * self.chs  # midi tick # of last key on/off
         self.lch = [0] * self.chs   # left channel
         self.rch = [0] * self.chs   # right channel
+        self.expression = [0] * self.chs    # expression
 
         self.mid = MidiFile()
         self.mid.type = 1
@@ -57,7 +58,7 @@ class YM2151:
                     else:
                         funcs.dprint(state, "addr:{} KeyOn aa:{} dd:{} chnum:{} keyon:{}".format(hex(addr), hex(aa), hex(dd), hex(chnum), hex(keyon)))
                         tick = m.sample2tick(state.getSamples(), state.getMidiTempo(), state.getMidiResolution())
-                        m.noteOn(self.track[chnum + 1], chnum, self.midinote[chnum], 100, tick - self.lastmiditick[chnum])
+                        m.noteOn(self.track[chnum + 1], chnum, self.midinote[chnum], self.expression[chnum], tick - self.lastmiditick[chnum])
                         self.lastmidinote[chnum] = self.midinote[chnum]
                         self.lastmiditick[chnum] = tick
                         self.keyon[chnum] = keyon
@@ -69,7 +70,7 @@ class YM2151:
                     else:
                         funcs.dprint(state, "addr:{} KeyOff aa:{} dd:{} chnum:{} keyon:{}".format(hex(addr), hex(aa), hex(dd), hex(chnum), hex(keyon)))
                         tick = m.sample2tick(state.getSamples(), state.getMidiTempo(), state.getMidiResolution())
-                        m.noteOff(self.track[chnum + 1], chnum, self.lastmidinote[chnum], 100, tick - self.lastmiditick[chnum])
+                        m.noteOff(self.track[chnum + 1], chnum, self.lastmidinote[chnum], self.expression[chnum], tick - self.lastmiditick[chnum])
                         self.lastmiditick[chnum] = tick
                         self.keyon[chnum] = keyon
                 else:
@@ -85,10 +86,10 @@ class YM2151:
             # bit 6 L-ch enable
             # bit 2-0 connection
             chnum = aa - 0x20
-            self.rch = dd & 0x80
-            self.lch = dd & 0x40
-            self.con = dd & 0x07
-            funcs.dprint(state, "addr:{} LRch/Con aa:{} dd:{} chnum:{} rch:{} lch:{} con:{}".format(hex(addr), hex(aa), hex(dd), hex(chnum), hex(self.rch), hex(self.lch), hex(self.con)))
+            self.rch[chnum] = dd & 0x80
+            self.lch[chnum] = dd & 0x40
+            self.con[chnum] = dd & 0x07
+            funcs.dprint(state, "addr:{} LRch/Con aa:{} dd:{} chnum:{} rch:{} lch:{} con:{}".format(hex(addr), hex(aa), hex(dd), hex(chnum), hex(self.rch[chnum]), hex(self.lch[chnum]), hex(self.con[chnum])))
 
         elif (0x28 <= aa <= 0x2f):
             # bit 6-4 octave
@@ -118,9 +119,9 @@ class YM2151:
                 opnum = 1
             elif (opnum == 1):
                 opnum = 2
-            tl = dd & 0x7f
-
-            funcs.dprint(state, "addr:{} TL aa:{} dd:{} chnum:{} opnum:{} tl:{}".format(hex(addr), hex(aa), hex(dd), hex(chnum), hex(opnum), hex(tl)))
+            self.tls[chnum][opnum] = dd & 0x7f
+            self.expression[chnum] = funcs.ymtl2exp(self.con[chnum], self.tls[chnum][0], self.tls[chnum][1], self.tls[chnum][2], self.tls[chnum][3])
+            funcs.dprint(state, "addr:{} TL aa:{} dd:{} chnum:{} opnum:{}".format(hex(addr), hex(aa), hex(dd), hex(chnum), hex(opnum)))
 
         elif (0x80 <= aa <= 0xff):
             pass
