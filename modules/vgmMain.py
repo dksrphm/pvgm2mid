@@ -48,6 +48,7 @@ def convert(state, vgmdata, midifilebase):
         elif (vgmcmd == 0x54):
             if (objYM2151 is None):
                 objYM2151 = classYM2151.YM2151(state)
+                objYM2151.setMidiFileName(midifilebase)
             # YM2151, write value dd to register aa
             aa = vgmdata[addr + 1]
             dd = vgmdata[addr + 2]

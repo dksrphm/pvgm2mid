@@ -11,6 +11,7 @@ from . import midiFuncs as m
 class YM2151:
     def __init__(self, state):
         self.chipname = 'YM2151'
+        self.midiFileName = ''
         self.chs = 8    # max channels
         self.con = [0] * self.chs   # connection algorithm
         self.tls = [[0] * 4] * self.chs     # total levels [ch][op]
@@ -29,11 +30,20 @@ class YM2151:
         # track 0: conductor track
         # track 1-: data track
         self.track = [0] * (self.chs + 1)
-        for i in range(self.chs + 1):
-            self.track[i] = MidiTrack()
-            self.mid.tracks.append(self.track[i])
 
-        self.track[0].append(MetaMessage('set_tempo', tempo=mido.bpm2tempo(state.getMidiTempo()), time = 10))
+        # conductor track
+        self.track[0] = MidiTrack()
+        self.mid.tracks.append(self.track[0])
+        self.track[0].append(MetaMessage('set_tempo', tempo=mido.bpm2tempo(state.getMidiTempo()), time = 0))
+
+        # data track
+        for i in range(self.chs):
+            self.track[i + 1] = MidiTrack()
+            self.mid.tracks.append(self.track[i + 1])
+            m.initMidiTrack(self.track[i + 1], i)
+            trackname = self.chipname + ' CH' + str(i + 1)
+            m.setMidiTrackname(self.track[i + 1], trackname)
+
         #self.mid.save('new_song.mid')
 
     def update(self, state, addr, aa, dd):
@@ -91,6 +101,27 @@ class YM2151:
             self.con[chnum] = dd & 0x07
             funcs.dprint(state, "addr:{} LRch/Con aa:{} dd:{} chnum:{} rch:{} lch:{} con:{}".format(hex(addr), hex(aa), hex(dd), hex(chnum), hex(self.rch[chnum]), hex(self.lch[chnum]), hex(self.con[chnum])))
 
+            # midi panpot:(L)0-64-127(R)
+            # YM2151: lch rch    midi panpot
+            #          1   0       0
+            #          1   1      64
+            #          0   1     127
+            if (self.rch[chnum]):
+                panpot = 127
+            else:
+                panpot = 64
+            
+            if (self.lch[chnum]):
+                panpot -= 63
+            else:
+                panpot -= 0
+
+            if (state.getSamples() < 1):
+                # sample # < 1 ... initial process. ignore
+                pass
+            else:
+                m.panSet(self.track[chnum + 1], chnum, panpot)
+
         elif (0x28 <= aa <= 0x2f):
             # bit 6-4 octave
             # bit 3-0 note (C#, D, D#, x, E, F, F#, x, G, G#, A, x, A#, B, C, x)
@@ -129,8 +160,17 @@ class YM2151:
         else:
             print("addr:{} NotImplemented aa:{} dd:{}".format(hex(addr), hex(aa), hex(dd)))
 
+
+    def getMidiFileName(self):
+        return self.midifilebase + '_' + self.chipname + '.mid'
+
+
+    def setMidiFileName(self, midifilebase):
+        self.midifilebase = midifilebase
+
+
     def exportMidi(self):
-        self.mid.save('new_song.mid')
+        self.mid.save(self.getMidiFileName())
 
 
 def note2midinote(octave, note):

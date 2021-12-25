@@ -39,7 +39,7 @@ def main(argv):
         # try open file as gzipped file(.vgz)
         with gzip.open(filename, mode="rb") as g:
             vgmdata = g.read()
-            print(vgmdata)
+            #print(vgmdata)
     except gzip.BadGzipFile as e:
         # open file as .vgm file
         with open(filename, mode="rb") as f:

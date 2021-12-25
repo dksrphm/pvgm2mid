@@ -13,8 +13,8 @@
             "console": "integratedTerminal",
             "args": [
                 //"-d",
-                "fz_boss.vgm",
-                //"fz_boss.vgz",
+                //"sal_boss.vgm",
+                "fz_boss.vgz",
             ],
         }
     ]
