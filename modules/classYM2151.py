@@ -179,9 +179,6 @@ def note2midinote(octave, note):
     # MIDI 440Hz: A4(GM), noteno #69
     n1 = note // 4
     n2 = note % 4
-    n = n1 * 3 + n2
-    if (n > 0x0b):
-        octave += 1
     midinote = (octave + 1) * 12 + (n + 1)
     #print("octave:{} note:{} midinote:{}".format(hex(octave), hex(note), midinote))
     return(midinote)
